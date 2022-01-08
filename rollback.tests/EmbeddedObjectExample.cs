@@ -1,8 +1,6 @@
-﻿using Rollback.structures;
-
-namespace Rollback.Tests.structures
+﻿namespace Rollback.Tests
 {
-    public class EmbeddedObjectExample : IRollbackEmbedded
+    public class EmbeddedObjectExample : IRollback
     {
         private readonly RollbackClock _clock;
         private readonly RollbackProperty<int> _x;
@@ -11,26 +9,26 @@ namespace Rollback.Tests.structures
         public EmbeddedObjectExample(RollbackClock clock)
         {
             _clock = clock;
-            _x = new RollbackProperty<int>(0);
-            _y = new RollbackProperty<int>(0);
+            _x = new RollbackProperty<int>(clock, 0);
+            _y = new RollbackProperty<int>(clock, 0);
         }
 
         public int X
         {
             get => _x.Get();
-            set => _x.Set(_clock.Time, value);
+            set => _x.Set(value);
         }
 
         public int Y
         {
             get => _y.Get();
-            set => _y.Set(_clock.Time, value);
+            set => _y.Set(value);
         }
 
         public void Rollback()
         {
-            _x.Rollback(_clock.Time);
-            _y.Rollback(_clock.Time);
+            _x.Rollback();
+            _y.Rollback();
         }
 
         public void RollbackClear()

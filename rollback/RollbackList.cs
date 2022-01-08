@@ -2,7 +2,7 @@
 using System.Collections.ObjectModel;
 using System.Linq;
 
-namespace Rollback.structures
+namespace Rollback
 {
     public class RollbackListFrame<T> : RollbackFrame
     {
@@ -40,12 +40,10 @@ namespace Rollback.structures
     {
         private readonly List<T> _values;
 
-        public RollbackList(int capacity = 10)
+        public RollbackList(RollbackClock clock, int capacity = 10) : base(clock)
         {
             _values = new List<T>(capacity);
         }
-
-        public T this[int index] => _values[index];
 
         /// <summary>
         /// Retrieves the underlying list.
@@ -61,19 +59,16 @@ namespace Rollback.structures
             return _values.GetEnumerator();
         }
 
-        public int Length()
-        {
-            return _values.Count;
-        }
+        public int Count => _values.Count;
 
-        public void Push(int frameTime, IEnumerable<T> values)
+        public void Push(IEnumerable<T> values)
         {
             // notes the original length by ensuring a frame exists
-            Frame(frameTime);
+            Frame();
             _values.AddRange(values);
         }
 
-        public T Pop(int frameTime)
+        public T Pop()
         {
             var length = _values.Count;
             if (length == 0)
@@ -81,16 +76,16 @@ namespace Rollback.structures
                 return default;
             }
 
-            var frame = Frame(frameTime);
+            var frame = Frame();
             var value = _values[length - 1];
             frame.RegisterPrevious(length - 1, value);
             _values.RemoveAt(length - 1);
             return value;
         }
 
-        public void Set(int frameTime, int index, T value)
+        public void Set(int index, T value)
         {
-            var frame = Frame(frameTime);
+            var frame = Frame();
             if (index < _values.Count)
             {
                 frame.RegisterPrevious(index, _values[index]);
@@ -103,9 +98,15 @@ namespace Rollback.structures
             _values[index] = value;
         }
 
-        protected override RollbackListFrame<T> FrameCreate(int frameTime)
+        public T this[int index]
         {
-            return new RollbackListFrame<T>(frameTime, _values.Count);
+            get => _values[index];
+            set => Set(index, value);
+        }
+
+        protected override RollbackListFrame<T> FrameCreate()
+        {
+            return new RollbackListFrame<T>(Clock.Time, _values.Count);
         }
 
         protected override void FrameApply(RollbackListFrame<T> frame)

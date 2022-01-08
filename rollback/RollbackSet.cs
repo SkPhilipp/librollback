@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
 
-namespace Rollback.structures
+namespace Rollback
 {
     public class RollbackSetFrame<T> : RollbackFrame
     {
@@ -31,14 +31,13 @@ namespace Rollback.structures
     {
         private readonly HashSet<T> _values;
 
-        public RollbackSet()
+        public RollbackSet(RollbackClock clock) : base(clock)
         {
             _values = new HashSet<T>();
         }
 
-        public RollbackSet(IEnumerable<T> initialValues)
+        public RollbackSet(RollbackClock clock, IEnumerable<T> initialValues) : this(clock)
         {
-            _values = new HashSet<T>();
             foreach (var initialValue in initialValues)
             {
                 _values.Add(initialValue);
@@ -50,11 +49,11 @@ namespace Rollback.structures
             return _values.Contains(value);
         }
 
-        public void Add(int frameTime, T value)
+        public void Add(T value)
         {
             if (!_values.Contains(value))
             {
-                var frame = Frame(frameTime);
+                var frame = Frame();
                 if (frame.IsUnregistered(value))
                 {
                     frame.RegisterUnassigned(value);
@@ -64,11 +63,11 @@ namespace Rollback.structures
             }
         }
 
-        public void Remove(int frameTime, T value)
+        public void Remove(T value)
         {
             if (Has(value))
             {
-                var frame = Frame(frameTime);
+                var frame = Frame();
                 if (frame.IsUnregistered(value))
                 {
                     frame.RegisterOriginal(value);
@@ -89,14 +88,11 @@ namespace Rollback.structures
             return new SortedSet<T>(_values).GetEnumerator();
         }
 
-        public int Length()
-        {
-            return _values.Count;
-        }
+        public int Count => _values.Count;
 
-        protected override RollbackSetFrame<T> FrameCreate(int frameTime)
+        protected override RollbackSetFrame<T> FrameCreate()
         {
-            return new RollbackSetFrame<T>(frameTime);
+            return new RollbackSetFrame<T>(Clock.Time);
         }
 
         protected override void FrameApply(RollbackSetFrame<T> frame)

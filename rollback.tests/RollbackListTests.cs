@@ -1,14 +1,13 @@
 ﻿using Fuzzer;
 using Fuzzer.blueprint;
 using NUnit.Framework;
-using Rollback.structures;
 using Rollback.tests;
 
-namespace Rollback.Tests.structures
+namespace Rollback.Tests
 {
     public class RollbackListFuzzerContext : RollbackFuzzerContext<RollbackList<double>>
     {
-        public RollbackListFuzzerContext() : base(new RollbackList<double>(), new RollbackList<double>())
+        public RollbackListFuzzerContext(RollbackClock clock) : base(clock, new RollbackList<double>(clock), new RollbackList<double>(clock))
         {
         }
 
@@ -16,40 +15,32 @@ namespace Rollback.Tests.structures
         {
             if (seed > 0.5)
             {
-                Time++;
+                Clock.Tick();
             }
-            Main.Push(Time, new[] { seed });
-            if (Mode == ExecutionMode.Dual)
-            {
-                Control.Push(Time, new[] { seed });
-            }
+
+            Apply(list => list.Push(new[] { seed }));
         }
 
         public void StepPop(double seed)
         {
             if (seed > 0.5)
             {
-                Time++;
+                Clock.Tick();
             }
-            Main.Pop(Time);
-            if (Mode == ExecutionMode.Dual)
-            {
-                Control.Pop(Time);
-            }
+
+            Apply(list => list.Pop());
         }
 
         public void StepSet(double seed)
         {
             if (seed > 0.5)
             {
-                Time++;
+                Clock.Tick();
             }
+
             var index = (int)(seed * 10);
-            Main.Set(Time, index, seed);
-            if (Mode == ExecutionMode.Dual)
-            {
-                Control.Set(Time, index, seed);
-            }
+
+            Apply(list => list.Set(index, seed));
         }
     }
 
@@ -73,7 +64,7 @@ namespace Rollback.Tests.structures
                 .Step("StepRollbackPerform", (context, _) => context.StepRollbackPerform())
                 .Phase(1, 1)
                 .Step("StepComplete", (context, _) => context.StepComplete());
-            var fuzzer = new Fuzzer<RollbackListFuzzerContext>(() => new RollbackListFuzzerContext());
+            var fuzzer = new Fuzzer<RollbackListFuzzerContext>(() => new RollbackListFuzzerContext(new RollbackClock()));
             fuzzer.Fuzz(blueprint, 500);
         }
     }

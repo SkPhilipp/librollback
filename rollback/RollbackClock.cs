@@ -1,4 +1,4 @@
-﻿namespace Rollback.structures
+﻿namespace Rollback
 {
     public class RollbackClock
     {
@@ -12,7 +12,7 @@
         /// </summary>
         public int Time { get; private set; }
 
-        public RollbackClock(int time)
+        public RollbackClock(int time = 0)
         {
             LastTime = time;
             Time = time;

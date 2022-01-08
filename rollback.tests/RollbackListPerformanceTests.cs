@@ -1,7 +1,6 @@
 ﻿using NUnit.Framework;
-using Rollback.structures;
 
-namespace Rollback.Tests.structures
+namespace Rollback.Tests
 {
     [TestFixture]
     public class RollbackListBenchmarks : PerformanceFixture
@@ -12,67 +11,82 @@ namespace Rollback.Tests.structures
         public void BenchmarkConstructor()
         {
             ReportIterations(IterationsOperations);
-            var rollbackList = new RollbackList<int>();
+            var rollbackClock = new RollbackClock();
+            var rollbackList = new RollbackList<int>(rollbackClock);
             for (var i = 1; i < IterationsOperations; i++)
             {
-                rollbackList = new RollbackList<int>();
+                rollbackList = new RollbackList<int>(rollbackClock);
             }
 
-            rollbackList.Length();
+            Assert.IsNotNull(rollbackList.Count);
         }
 
         [Test]
         public void BenchmarkSet0()
         {
             ReportIterations(IterationsOperations);
-            var rollbackList = new RollbackList<int>();
+            var rollbackClock = new RollbackClock();
+            var rollbackList = new RollbackList<int>(rollbackClock);
             for (var i = 0; i < IterationsOperations; i++)
             {
-                rollbackList.Set(0, i, i);
+                rollbackList.Set(i, i);
             }
 
-            rollbackList.Rollback(0);
+            rollbackClock.MoveTo(0);
+            rollbackList.Rollback();
+            Assert.IsNotNull(rollbackList.Count);
         }
 
         [Test]
         public void BenchmarkSetI()
         {
             ReportIterations(IterationsOperations);
-            var rollbackList = new RollbackList<int>();
+            var rollbackClock = new RollbackClock();
+            var rollbackList = new RollbackList<int>(rollbackClock);
             for (var i = 0; i < IterationsOperations; i++)
             {
-                rollbackList.Set(i, i, i);
+                rollbackClock.Tick();
+                rollbackList.Set(i, i);
             }
 
-            rollbackList.Rollback(0);
+            rollbackClock.MoveTo(0);
+            rollbackList.Rollback();
+            Assert.IsNotNull(rollbackList.Count);
         }
 
         [Test]
         public void BenchmarkPushPop0()
         {
             ReportIterations(IterationsOperations);
-            var rollbackList = new RollbackList<int>();
+            var rollbackClock = new RollbackClock();
+            var rollbackList = new RollbackList<int>(rollbackClock);
             for (var i = 0; i < IterationsOperations; i++)
             {
-                rollbackList.Push(0, new[] { i });
-                rollbackList.Pop(0);
+                rollbackList.Push (new[] { i });
+                rollbackList.Pop();
             }
 
-            rollbackList.Rollback(0);
+            rollbackClock.MoveTo(0);
+            rollbackList.Rollback();
+            Assert.IsNotNull(rollbackList.Count);
         }
 
         [Test]
         public void BenchmarkPushPopI()
         {
             ReportIterations(IterationsOperations);
-            var rollbackList = new RollbackList<int>();
+            var rollbackClock = new RollbackClock();
+            var rollbackList = new RollbackList<int>(rollbackClock);
             for (var i = 0; i < IterationsOperations; i++)
             {
-                rollbackList.Push(i, new[] { i });
-                rollbackList.Pop(i);
+                rollbackClock.Tick();
+                rollbackList.Push(new[] { i });
+                rollbackList.Pop();
             }
 
-            rollbackList.Rollback(0);
+            rollbackClock.MoveTo(0);
+            rollbackList.Rollback();
+            Assert.IsNotNull(rollbackList.Count);
         }
     }
 }

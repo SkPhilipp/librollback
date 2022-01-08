@@ -2,14 +2,13 @@
 using Fuzzer.blueprint;
 using Fuzzer.core;
 using NUnit.Framework;
-using Rollback.structures;
 using Rollback.tests;
 
-namespace Rollback.Tests.structures
+namespace Rollback.Tests
 {
     public class RollbackMapFuzzerContext : RollbackFuzzerContext<RollbackMap<double, double>>
     {
-        public RollbackMapFuzzerContext() : base(new RollbackMap<double, double>(), new RollbackMap<double, double>())
+        public RollbackMapFuzzerContext(RollbackClock clock) : base(clock, new RollbackMap<double, double>(clock), new RollbackMap<double, double>(clock))
         {
         }
 
@@ -17,30 +16,23 @@ namespace Rollback.Tests.structures
         {
             if (seed > 0.5)
             {
-                Time++;
+                Clock.Tick();
             }
 
+
             var value = FuzzerUtils.SeedToInt(seed, 10);
-            Main.Set(Time, value, value);
-            if (Mode == ExecutionMode.Dual)
-            {
-                Control.Set(Time, value, value);
-            }
+            Apply(list => list.Set(value, seed));
         }
 
         public void StepRemove(double seed)
         {
             if (seed > 0.5)
             {
-                Time++;
+                Clock.Tick();
             }
 
-            var value = FuzzerUtils.SeedToInt(seed, 10);
-            Main.Remove(Time, value);
-            if (Mode == ExecutionMode.Dual)
-            {
-                Control.Remove(Time, value);
-            }
+            var key = FuzzerUtils.SeedToInt(seed, 10);
+            Apply(list => list.Remove(key));
         }
     }
 
@@ -62,7 +54,7 @@ namespace Rollback.Tests.structures
                 .Step("StepRollbackPerform", (context, _) => context.StepRollbackPerform())
                 .Phase(1, 1)
                 .Step("StepComplete", (context, _) => context.StepComplete());
-            var fuzzer = new Fuzzer<RollbackMapFuzzerContext>(() => new RollbackMapFuzzerContext());
+            var fuzzer = new Fuzzer<RollbackMapFuzzerContext>(() => new RollbackMapFuzzerContext(new RollbackClock()));
             fuzzer.Fuzz(blueprint, 500);
         }
     }

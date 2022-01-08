@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
 
-namespace Rollback.structures
+namespace Rollback
 {
     public class RollbackPropertyFrame<T> : RollbackFrame
     {
@@ -15,7 +15,7 @@ namespace Rollback.structures
     {
         private T _value;
 
-        public RollbackProperty(T value)
+        public RollbackProperty(RollbackClock clock, T value) : base(clock)
         {
             _value = value;
         }
@@ -25,12 +25,12 @@ namespace Rollback.structures
             return _value;
         }
 
-        public void Set(int frameTime, T value)
+        public void Set(T value)
         {
             var lastFrame = FrameCurrent();
-            if (lastFrame == null || lastFrame.Time != frameTime)
+            if (lastFrame == null || lastFrame.Time != Clock.Time)
             {
-                var frame = FrameCreate(frameTime);
+                var frame = FrameCreate();
                 frame.Value = _value;
                 FramePush(frame);
             }
@@ -38,9 +38,9 @@ namespace Rollback.structures
             _value = value;
         }
 
-        protected override RollbackPropertyFrame<T> FrameCreate(int frameTime)
+        protected override RollbackPropertyFrame<T> FrameCreate()
         {
-            return new RollbackPropertyFrame<T>(frameTime);
+            return new RollbackPropertyFrame<T>(Clock.Time);
         }
 
         protected override void FrameApply(RollbackPropertyFrame<T> frame)

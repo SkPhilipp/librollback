@@ -5,30 +5,39 @@
     /// </summary>
     public abstract class RollbackFrame
     {
+        public readonly int Time;
+
         protected RollbackFrame(int time)
         {
             Time = time;
         }
-
-        public int Time { get; }
     }
 
     /// <summary>
-    /// Frame-based rollback implementation.
+    /// Rollback implementation where each change is registered onto a frame containing all changes made for the current time.
+    ///
+    /// Frames generally contain only the minimal amount of information to be able to undo the changes. For example when modifying a single value multiple times within
+    /// a single frame, only the original value needs to be stored to perform a rollback.
     /// </summary>
     /// <typeparam name="T"></typeparam>
     public abstract class FrameBasedRollback<T> : IRollback where T : RollbackFrame
     {
+        protected readonly RollbackClock Clock;
         private readonly T[] _frames;
         private int _frameIndex;
 
-        protected FrameBasedRollback()
+        protected FrameBasedRollback(RollbackClock clock)
         {
+            Clock = clock;
             _frames = new T[RollbackConfiguration.Frames];
             _frameIndex = 0;
         }
 
-        protected abstract T FrameCreate(int frameTime);
+        /// <summary>
+        /// Initialize an empty frame at the current clock time.
+        /// </summary>
+        /// <returns></returns>
+        protected abstract T FrameCreate();
 
         protected T FrameCurrent()
         {
@@ -44,24 +53,27 @@
         /// <summary>
         /// Retrieves or creates the frame for the given time.
         /// </summary>
-        /// <param name="frameTime"></param>
         /// <returns></returns>
-        protected T Frame(int frameTime)
+        protected T Frame()
         {
             var lastFrame = _frames[_frameIndex];
-            if (lastFrame != null && lastFrame.Time == frameTime)
+            if (lastFrame != null && lastFrame.Time == Clock.Time)
             {
                 return lastFrame;
             }
 
-            var newFrame = FrameCreate(frameTime);
+            var newFrame = FrameCreate();
             FramePush(newFrame);
             return newFrame;
         }
 
+        /// <summary>
+        /// Apply a frame of changes to this object, invoked by <see cref="Rollback"/>.
+        /// </summary>
+        /// <param name="frame"></param>
         protected abstract void FrameApply(T frame);
 
-        public void Rollback(int frameTime)
+        public void Rollback()
         {
             const int limit = RollbackConfiguration.Frames;
             var i = _frameIndex + limit;
@@ -69,7 +81,7 @@
             {
                 var index = i % limit;
                 var frame = _frames[index];
-                if (frame == null || frame.Time < frameTime)
+                if (frame == null || frame.Time < Clock.Time)
                 {
                     break;
                 }

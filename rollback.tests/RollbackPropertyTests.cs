@@ -1,14 +1,13 @@
 ﻿using Fuzzer;
 using Fuzzer.blueprint;
 using NUnit.Framework;
-using Rollback.structures;
 using Rollback.tests;
 
-namespace Rollback.Tests.structures
+namespace Rollback.Tests
 {
     public class RollbackPropertyFuzzerContext : RollbackFuzzerContext<RollbackProperty<double>>
     {
-        public RollbackPropertyFuzzerContext() : base(new RollbackProperty<double>(0), new RollbackProperty<double>(0))
+        public RollbackPropertyFuzzerContext(RollbackClock clock) : base(clock, new RollbackProperty<double>(clock, 0), new RollbackProperty<double>(clock, 0))
         {
         }
 
@@ -16,13 +15,10 @@ namespace Rollback.Tests.structures
         {
             if (seed > 0.5)
             {
-                Time++;
+                Clock.Tick();
             }
-            Main.Set(Time, Main.Get() + seed);
-            if (Mode == ExecutionMode.Dual)
-            {
-                Control.Set(Time, Control.Get() + seed);
-            }
+
+            Apply(list => list.Set(list.Get() + seed));
         }
     }
 
@@ -42,7 +38,7 @@ namespace Rollback.Tests.structures
                 .Step("StepRollbackPerform", (context, _) => context.StepRollbackPerform())
                 .Phase(1, 1)
                 .Step("StepComplete", (context, _) => context.StepComplete());
-            var fuzzer = new Fuzzer<RollbackPropertyFuzzerContext>(() => new RollbackPropertyFuzzerContext());
+            var fuzzer = new Fuzzer<RollbackPropertyFuzzerContext>(() => new RollbackPropertyFuzzerContext(new RollbackClock()));
             fuzzer.Fuzz(blueprint, 500);
         }
     }

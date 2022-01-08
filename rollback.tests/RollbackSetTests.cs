@@ -2,14 +2,13 @@
 using Fuzzer.blueprint;
 using Fuzzer.core;
 using NUnit.Framework;
-using Rollback.structures;
 using Rollback.tests;
 
-namespace Rollback.Tests.structures
+namespace Rollback.Tests
 {
     public class RollbackSetFuzzerContext : RollbackFuzzerContext<RollbackSet<double>>
     {
-        public RollbackSetFuzzerContext() : base(new RollbackSet<double>(), new RollbackSet<double>())
+        public RollbackSetFuzzerContext(RollbackClock clock) : base(clock, new RollbackSet<double>(clock), new RollbackSet<double>(clock))
         {
         }
 
@@ -17,28 +16,22 @@ namespace Rollback.Tests.structures
         {
             if (seed > 0.5)
             {
-                Time++;
+                Clock.Tick();
             }
+
             var value = FuzzerUtils.SeedToInt(seed, 10);
-            Main.Add(Time, value);
-            if (Mode == ExecutionMode.Dual)
-            {
-                Control.Add(Time, value);
-            }
+            Apply(list => list.Add(value));
         }
 
         public void StepRemove(double seed)
         {
             if (seed > 0.5)
             {
-                Time++;
+                Clock.Tick();
             }
+
             var value = FuzzerUtils.SeedToInt(seed, 10);
-            Main.Remove(Time, value);
-            if (Mode == ExecutionMode.Dual)
-            {
-                Control.Remove(Time, value);
-            }
+            Apply(list => list.Remove(value));
         }
     }
 
@@ -60,7 +53,7 @@ namespace Rollback.Tests.structures
                 .Step("StepRollbackPerform", (context, _) => context.StepRollbackPerform())
                 .Phase(1, 1)
                 .Step("StepComplete", (context, _) => context.StepComplete());
-            var fuzzer = new Fuzzer<RollbackSetFuzzerContext>(() => new RollbackSetFuzzerContext());
+            var fuzzer = new Fuzzer<RollbackSetFuzzerContext>(() => new RollbackSetFuzzerContext(new RollbackClock()));
             fuzzer.Fuzz(blueprint, 500);
         }
     }

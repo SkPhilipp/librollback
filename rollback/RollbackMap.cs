@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
 
-namespace Rollback.structures
+namespace Rollback
 {
     public class RollbackMapFrameValue<T>
     {
@@ -46,22 +46,19 @@ namespace Rollback.structures
     {
         private readonly Dictionary<TK, TV> _values;
 
-        public RollbackMap()
+        public RollbackMap(RollbackClock clock) : base(clock)
         {
             _values = new Dictionary<TK, TV>();
         }
-
-        
-        public TV this[TK key] => _values[key];
 
         public bool ContainsKey(TK key)
         {
             return _values.ContainsKey(key);
         }
 
-        public void Set(int frameTime, TK key, TV value)
+        public void Set(TK key, TV value)
         {
-            var frame = Frame(frameTime);
+            var frame = Frame();
             if (frame.IsUnregistered(key))
             {
                 var wasAssigned = _values.ContainsKey(key);
@@ -78,11 +75,11 @@ namespace Rollback.structures
             _values[key] = value;
         }
 
-        public void Remove(int frameTime, TK key)
+        public void Remove(TK key)
         {
             if (_values.ContainsKey(key))
             {
-                var frame = Frame(frameTime);
+                var frame = Frame();
                 if (frame.IsUnregistered(key))
                 {
                     var previous = _values[key];
@@ -103,10 +100,16 @@ namespace Rollback.structures
         {
             return new SortedSet<TK>(_values.Keys);
         }
-
-        protected override RollbackMapFrame<TK, TV> FrameCreate(int frameTime)
+        
+        public TV this[TK key]
         {
-            return new RollbackMapFrame<TK, TV>(frameTime);
+            get => _values[key];
+            set => Set(key, value);
+        }
+
+        protected override RollbackMapFrame<TK, TV> FrameCreate()
+        {
+            return new RollbackMapFrame<TK, TV>(Clock.Time);
         }
 
         protected override void FrameApply(RollbackMapFrame<TK, TV> frame)

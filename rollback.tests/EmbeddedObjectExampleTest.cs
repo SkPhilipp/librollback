@@ -1,7 +1,6 @@
 ﻿using NUnit.Framework;
-using Rollback.structures;
 
-namespace Rollback.Tests.structures
+namespace Rollback.Tests
 {
     [TestFixture]
     public class EmbeddedObjectExampleTest

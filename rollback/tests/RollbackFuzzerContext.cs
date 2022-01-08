@@ -15,14 +15,14 @@ namespace Rollback.tests
         }
 
         private int _rollbackTime;
-        protected int Time;
         protected ExecutionMode Mode;
+        protected readonly RollbackClock Clock;
         protected readonly T Main;
         protected readonly T Control;
 
-        protected RollbackFuzzerContext(T main, T control)
+        protected RollbackFuzzerContext(RollbackClock clock, T main, T control)
         {
-            Time = 0;
+            Clock = clock;
             _rollbackTime = 0;
             Mode = ExecutionMode.Dual;
             Main = main;
@@ -30,12 +30,25 @@ namespace Rollback.tests
         }
 
         /// <summary>
+        /// Applies an action to the main and optionally to the control object, depending on the current execution mode.
+        /// </summary>
+        /// <param name="action"></param>
+        public void Apply(Action<T> action)
+        {
+            action(Main);
+            if (Mode == ExecutionMode.Dual)
+            {
+                action(Control);
+            }
+        }
+
+        /// <summary>
         /// Assigns a rollback time and steps into the next execution mode.
         /// </summary>
         public void StepRollbackPlan()
         {
-            Time++;
-            _rollbackTime = Time;
+            Clock.Tick();
+            _rollbackTime = Clock.Time;
             Mode = ExecutionMode.Single;
         }
 
@@ -44,8 +57,8 @@ namespace Rollback.tests
         /// </summary>
         public void StepRollbackPerform()
         {
-            Main.Rollback(_rollbackTime);
-            Time = _rollbackTime;
+            Clock.MoveTo(_rollbackTime);
+            Main.Rollback();
         }
 
         /// <summary>
@@ -56,8 +69,8 @@ namespace Rollback.tests
         /// <exception cref="Exception"></exception>
         public void StepComplete()
         {
+            Clock.Tick();
             StepRollbackPerform();
-            Time++;
             Mode = ExecutionMode.Dual;
             if (!Main.Equals(Control))
             {

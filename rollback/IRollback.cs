@@ -6,18 +6,19 @@
     }
 
     /// <summary>
-    /// Indicates support for rollback functionalities.
+    /// Indicates support for rollback.
+    ///
+    /// Objects implementing this class keep track of their current point in time, generally through the use of an external clock.
     /// </summary>
     public interface IRollback
     {
         /// <summary>
-        /// Rolls this object back to a point in time.
+        /// Rolls this object back to its clock's current point in time.
         /// </summary>
-        /// <param name="frameTime"></param>
-        void Rollback(int frameTime);
+        void Rollback();
 
         /// <summary>
-        /// Resets rollback data.
+        /// Removes all currently contained rollback data.
         /// </summary>
         void RollbackClear();
     }

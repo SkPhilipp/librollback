@@ -7,6 +7,9 @@ on:
 
 jobs:
   build:
+    env:
+      GITHUB_TOKEN: ${{ secrets.GH_TOKEN_SCOPE_PACKAGES }}
+      TAG: ${{ github.ref_name }}
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
@@ -26,10 +29,7 @@ jobs:
         run: |
           dotnet test .
       - name: Publish
-        env:
-          GITHUB_TOKEN: ${{ secrets.GH_TOKEN_SCOPE_PACKAGES }}
-          TAG: ${{ github.ref_name }}
         run: |
-          cd Fuzzer
+          cd rollback
           dotnet pack . --configuration Release "-p:Version=${TAG}"
           dotnet nuget push "bin/Release/*.nupkg"  --api-key "${GITHUB_TOKEN}" --source "github-effortgames"

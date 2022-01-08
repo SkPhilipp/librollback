@@ -1,0 +1,35 @@
+# push a tag in the below format to perform a release
+
+on:
+  push:
+    tags:
+      - '[0-9]+.[0-9]+.[0-9]+'
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - name: Setup dotnet
+        uses: actions/setup-dotnet@v1
+        with:
+          dotnet-version: '2.1.x'
+      - name: Setup dotnet
+        uses: actions/setup-dotnet@v1
+        with:
+          dotnet-version: '5.0.x'
+      - name: Build
+        run: |
+          dotnet nuget add source --username USERNAME --password "${GITHUB_TOKEN}" --store-password-in-clear-text --name github-effortgames "https://nuget.pkg.github.com/EffortGames/index.json"
+          dotnet build .
+      - name: Test
+        run: |
+          dotnet test .
+      - name: Publish
+        env:
+          GITHUB_TOKEN: ${{ secrets.GH_TOKEN_SCOPE_PACKAGES }}
+          TAG: ${{ github.ref_name }}
+        run: |
+          cd Fuzzer
+          dotnet pack . --configuration Release "-p:Version=${TAG}"
+          dotnet nuget push "bin/Release/*.nupkg"  --api-key "${GITHUB_TOKEN}" --source "github-effortgames"

@@ -8,6 +8,8 @@ on:
 
 jobs:
   build:
+    env:
+      GITHUB_TOKEN: ${{ secrets.GH_TOKEN_SCOPE_PACKAGES }}
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2

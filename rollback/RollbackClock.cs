@@ -34,7 +34,7 @@
         public void MoveTo(int newTime)
         {
             LastTime = Time;
-            Time++;
+            Time = newTime;
         }
     }
 }

@@ -3,6 +3,7 @@
     <PropertyGroup>
         <TargetFramework>netstandard2.0</TargetFramework>
         <RootNamespace>Rollback</RootNamespace>
+        <RepositoryUrl>https://github.com/EffortGames/librollback.git</RepositoryUrl>
     </PropertyGroup>
 
 </Project>

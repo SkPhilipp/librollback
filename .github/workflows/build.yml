@@ -1,5 +1,7 @@
 # push a commit or create a pull request to perform a build
 
+name: Build
+
 on:
   push:
     branches:

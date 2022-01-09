@@ -1,5 +1,7 @@
 # push a tag in the below format to perform a release
 
+name: Release
+
 on:
   push:
     tags:

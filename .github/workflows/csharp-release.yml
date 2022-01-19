@@ -3,11 +3,17 @@ name: c# release
 on:
   workflow_dispatch: 
 
+permissions:
+  contents: write
+  packages: write
+
 jobs:
   build:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
+        with:
+          token: ${{ github.token }}
       - name: Setup dotnet
         uses: actions/setup-dotnet@v1
         with:
@@ -18,9 +24,9 @@ jobs:
           dotnet-version: '5.0.x'
       - name: Build
         env:
-          TOKEN: ${{ secrets.GH_TOKEN_SCOPE_PACKAGES }}
+          ORGANIZATION_TOKEN: ${{ secrets.GH_TOKEN_SCOPE_PACKAGES }}
         run: |
-          dotnet nuget add source --username USERNAME --password "${TOKEN}" --store-password-in-clear-text --name github-effortgames "https://nuget.pkg.github.com/EffortGames/index.json"
+          dotnet nuget add source --username USERNAME --password "${ORGANIZATION_TOKEN}" --store-password-in-clear-text --name github-effortgames "https://nuget.pkg.github.com/EffortGames/index.json"
           dotnet build .
       - name: Test
         run: |
@@ -29,19 +35,27 @@ jobs:
         shell: bash
         env:
           PROJECT: rollback
-          TOKEN: ${{ secrets.GH_TOKEN_SCOPE_PACKAGES }}
+          REPOSITORY_TOKEN: ${{ github.token }}
         run: |
-          # obtain .github/VERSION & increment it
+          # obtain .github/VERSION
           if [ ! -f .github/VERSION ]; then
             echo "1.0.0" > .github/VERSION
           fi
           VERSION=$(cat .github/VERSION)
+
+          # build and release
+          cd "${PROJECT}"
+          dotnet pack . --configuration Release "-p:Version=${VERSION}"
+          dotnet nuget push "bin/Release/*.nupkg" --api-key "${REPOSITORY_TOKEN}" --source "github-effortgames"
+          cd ../
+
+          # push new version
           MAJOR=$(echo "${VERSION}" | cut -d'.' -f1)
           MINOR=$(echo "${VERSION}" | cut -d'.' -f2)
           PATCH=$(echo "${VERSION}" | cut -d'.' -f3)
           PATCH=$(("${PATCH}" + 1))
           echo "$MAJOR.$MINOR.$PATCH" > .github/VERSION
-          # build and release
-          cd "${PROJECT}"
-          dotnet pack . --configuration Release "-p:Version=${VERSION}"
-          dotnet nuget push "bin/Release/*.nupkg" --api-key "${TOKEN}" --source "github-effortgames"
+          git add .github/VERSION
+          git commit -m "v${VERSION}"
+          git tag "v${VERSION}"
+          git push origin master --tags

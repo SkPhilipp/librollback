@@ -1,0 +1,10 @@
+name: c# release
+
+on:
+  workflow_dispatch: 
+
+jobs:
+  invoke:
+    uses: EffortGames/workflows/.github/workflows/csharp-build.yml@master
+    secrets:
+      token: ${{ secrets.GH_TOKEN_SCOPE_PACKAGES }}

@@ -1,0 +1,13 @@
+name: c# build
+
+on:
+  push:
+    branches:
+      - '*'
+  pull_request:
+
+jobs:
+  invoke:
+    uses: EffortGames/workflows/.github/workflows/csharp-build.yml@master
+    secrets:
+      token: ${{ secrets.GH_TOKEN_SCOPE_PACKAGES }}

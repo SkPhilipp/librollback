@@ -56,6 +56,6 @@ jobs:
           PATCH=$(("${PATCH}" + 1))
           echo "$MAJOR.$MINOR.$PATCH" > .github/VERSION
           git add .github/VERSION
-          git commit -m "v${VERSION}"
-          git tag "v${VERSION}"
+          git commit -m "release ${VERSION}"
+          git tag "${VERSION}"
           git push origin master --tags

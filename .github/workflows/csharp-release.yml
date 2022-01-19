@@ -50,6 +50,8 @@ jobs:
           cd ../
 
           # push new version
+          git config --global user.email "automation@effortgames.nl"
+          git config --global user.name "EffortGames Automation"
           MAJOR=$(echo "${VERSION}" | cut -d'.' -f1)
           MINOR=$(echo "${VERSION}" | cut -d'.' -f2)
           PATCH=$(echo "${VERSION}" | cut -d'.' -f3)

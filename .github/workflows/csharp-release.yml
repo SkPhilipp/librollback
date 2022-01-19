@@ -56,7 +56,7 @@ jobs:
           MINOR=$(echo "${VERSION}" | cut -d'.' -f2)
           PATCH=$(echo "${VERSION}" | cut -d'.' -f3)
           PATCH=$(("${PATCH}" + 1))
-          echo "$MAJOR.$MINOR.$PATCH" > .github/VERSION
+          echo "${MAJOR}.${MINOR}.${PATCH}" > .github/VERSION
           git add .github/VERSION
           git commit -m "release ${VERSION}"
           git tag "${VERSION}"

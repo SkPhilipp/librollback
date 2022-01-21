@@ -23,6 +23,16 @@ namespace Rollback
             _random = new Random(_seed);
         }
 
+        public int Next(int minValue, int maxValue)
+        {
+            return _random.Next(minValue, maxValue);
+        }
+
+        public int Next(int maxValue)
+        {
+            return _random.Next(maxValue);
+        }
+
         public int Next()
         {
             return _random.Next();

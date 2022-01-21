@@ -17,6 +17,19 @@ namespace Rollback.Tests
             Apply(random => random.Next());
         }
 
+        public void StepNextMax(double seed)
+        {
+            var maxValue = FuzzerUtils.SeedToInt(seed, 20);
+            Apply(random => random.Next(maxValue));
+        }
+
+        public void StepNextMinMax(double seed)
+        {
+            var minValue = FuzzerUtils.SeedToInt(seed, 10);
+            var maxValue = FuzzerUtils.SeedToInt(seed, 20);
+            Apply(random => random.Next(minValue, maxValue));
+        }
+
         public void StepNextDouble(double seed)
         {
             Apply(random => random.NextDouble());
@@ -39,12 +52,16 @@ namespace Rollback.Tests
             var blueprint = new FuzzerBlueprint<RollbackRandomFuzzerContext>()
                 .Phase(0, 20)
                 .Step("StepNext", (context, seed) => context.StepNext(seed))
+                .Step("StepNextMax", (context, seed) => context.StepNextMax(seed))
+                .Step("StepNextMinMax", (context, seed) => context.StepNextMinMax(seed))
                 .Step("StepNextDouble", (context, seed) => context.StepNextDouble(seed))
                 .Step("StepNextBytes", (context, seed) => context.StepNextBytes(seed))
                 .Phase(1, 1)
                 .Step("StepRollbackPlan", (context, _) => context.StepRollbackPlan())
                 .Phase(0, 20)
                 .Step("StepNext", (context, seed) => context.StepNext(seed))
+                .Step("StepNextMax", (context, seed) => context.StepNextMax(seed))
+                .Step("StepNextMinMax", (context, seed) => context.StepNextMinMax(seed))
                 .Step("StepNextDouble", (context, seed) => context.StepNextDouble(seed))
                 .Step("StepNextBytes", (context, seed) => context.StepNextBytes(seed))
                 .Step("StepRollbackPerform", (context, _) => context.StepRollbackPerform())

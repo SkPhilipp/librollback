@@ -27,7 +27,7 @@ namespace Rollback
         }
     }
 
-    public class RollbackSet<T> : FrameBasedRollback<RollbackSetFrame<T>>
+    public class RollbackSet<T> : FrameBasedRollback<RollbackSetFrame<T>>, IRollbackSetReadOnly<T>
     {
         private readonly HashSet<T> _values;
 

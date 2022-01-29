@@ -36,7 +36,7 @@ namespace Rollback
         }
     }
 
-    public class RollbackList<T> : FrameBasedRollback<RollbackListFrame<T>>
+    public class RollbackList<T> : FrameBasedRollback<RollbackListFrame<T>>, IRollbackListReadOnly<T>
     {
         private readonly List<T> _values;
 

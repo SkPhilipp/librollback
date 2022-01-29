@@ -42,7 +42,7 @@ namespace Rollback
         }
     }
 
-    public class RollbackMap<TK, TV> : FrameBasedRollback<RollbackMapFrame<TK, TV>>
+    public class RollbackMap<TK, TV> : FrameBasedRollback<RollbackMapFrame<TK, TV>>, IRollbackMapReadOnly<TK, TV>
     {
         private readonly Dictionary<TK, TV> _values;
 

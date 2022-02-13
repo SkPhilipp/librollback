@@ -57,4 +57,31 @@ namespace Rollback.Tests
             fuzzer.Fuzz(blueprint, 500);
         }
     }
+
+    [TestFixture]
+    public class RollbackSetTests
+    {
+        [Test]
+        public void TestSorting()
+        {
+            var clock = new RollbackClock();
+            var set = new RollbackSet<ComparableObjectExample>(clock);
+            for (var i = 100; i < 200; i++)
+            {
+                set.Add(new ComparableObjectExample(i));
+            }
+
+            for (var i = 0; i < 100; i++)
+            {
+                set.Add(new ComparableObjectExample(i));
+            }
+
+            var expected = 0;
+            foreach (var comparableObjectExample in set)
+            {
+                Assert.AreEqual(expected, comparableObjectExample.Order);
+                expected++;
+            }
+        }
+    }
 }

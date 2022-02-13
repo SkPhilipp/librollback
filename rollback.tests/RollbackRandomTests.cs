@@ -41,6 +41,13 @@ namespace Rollback.Tests
             var array = new byte[arrayLength];
             Apply(random => random.NextBytes(array));
         }
+
+        public void StepNextByChance(double seed)
+        {
+            var minValue = FuzzerUtils.SeedToInt(seed, 10);
+            var maxValue = FuzzerUtils.SeedToInt(seed, 20);
+            Apply(random => random.NextByChance(minValue + 0.5, maxValue));
+        }
     }
 
     [TestFixture]
@@ -56,6 +63,7 @@ namespace Rollback.Tests
                 .Step("StepNextMinMax", (context, seed) => context.StepNextMinMax(seed))
                 .Step("StepNextDouble", (context, seed) => context.StepNextDouble(seed))
                 .Step("StepNextBytes", (context, seed) => context.StepNextBytes(seed))
+                .Step("StepNextByChance", (context, seed) => context.StepNextByChance(seed))
                 .Phase(1, 1)
                 .Step("StepRollbackPlan", (context, _) => context.StepRollbackPlan())
                 .Phase(0, 20)
@@ -64,6 +72,7 @@ namespace Rollback.Tests
                 .Step("StepNextMinMax", (context, seed) => context.StepNextMinMax(seed))
                 .Step("StepNextDouble", (context, seed) => context.StepNextDouble(seed))
                 .Step("StepNextBytes", (context, seed) => context.StepNextBytes(seed))
+                .Step("StepNextByChance", (context, seed) => context.StepNextByChance(seed))
                 .Step("StepRollbackPerform", (context, _) => context.StepRollbackPerform())
                 .Phase(1, 1)
                 .Step("StepComplete", (context, _) => context.StepComplete());

@@ -11,3 +11,4 @@ The following classes represent `IRollback` implementations of common classes;
 | `RollbackSet` | A set implementation which supports rollback. |
 | `RollbackProperty` | A value reference which supports rollback. |
 | `RollbackRandom` | A random number generator which supports rollback. |
+| `RollbackMapSet` | A map of sets which supports rollback. |

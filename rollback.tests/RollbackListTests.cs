@@ -65,7 +65,7 @@ namespace Rollback.Tests
                 .Phase(1, 1)
                 .Step("StepComplete", (context, _) => context.StepComplete());
             var fuzzer = new Fuzzer<RollbackListFuzzerContext>(() => new RollbackListFuzzerContext(new RollbackClock()));
-            fuzzer.Fuzz(blueprint, 500);
+            fuzzer.Fuzz(blueprint, 5000);
         }
     }
 }

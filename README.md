@@ -4,11 +4,11 @@ Rollback is a feature of objects which allows them to return to a past state. Im
 
 The following classes represent `IRollback` implementations of common classes;
 
-| Name | Description |
-| ---- | ----------- |
-| `RollbackList` | A list implementation which supports rollback. |
-| `RollbackMap` | A map implementation which supports rollback. |
-| `RollbackSet` | A set implementation which supports rollback. |
+| Name               | Description |
+|--------------------| ----------- |
+| `RollbackList`     | A list implementation which supports rollback. |
+| `RollbackMap`      | A map implementation which supports rollback. |
+| `RollbackSet`      | A set implementation which supports rollback. |
+| `RollbackSetMap`   | A map of sets which supports rollback. |
 | `RollbackProperty` | A value reference which supports rollback. |
-| `RollbackRandom` | A random number generator which supports rollback. |
-| `RollbackMapSet` | A map of sets which supports rollback. |
+| `RollbackRandom`   | A random number generator which supports rollback. |

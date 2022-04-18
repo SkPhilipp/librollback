@@ -140,6 +140,12 @@ namespace Rollback
 
         public IReadOnlyCollection<TV> this[TK key] => _values[key];
 
+        public IReadOnlyCollection<TV> TryGetValue(TK key)
+        {
+            _values.TryGetValue(key, out var value);
+            return value;
+        }
+
         protected override RollbackSetMapFrame<TK, TV> FrameCreate()
         {
             return new RollbackSetMapFrame<TK, TV>(Clock.Time);

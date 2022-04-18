@@ -100,11 +100,17 @@ namespace Rollback
         {
             return new SortedSet<TK>(_values.Keys);
         }
-        
+
         public TV this[TK key]
         {
             get => _values[key];
             set => Set(key, value);
+        }
+
+        public TV TryGetValue(TK key)
+        {
+            _values.TryGetValue(key, out var value);
+            return value;
         }
 
         protected override RollbackMapFrame<TK, TV> FrameCreate()

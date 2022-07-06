@@ -1,15 +1,14 @@
 #
-# from https://github.com/SonarSource/sonarcloud-github-action#usage
-# minimally adjusted to add properties
+# Based on https://github.com/SonarSource/sonarcloud-github-action#usage
 #
 on:
-  # Trigger analysis when pushing in master or pull requests, and when creating
-  # a pull request.
   push:
     branches:
       - master
   pull_request:
       types: [opened, synchronize, reopened]
+  workflow_dispatch:
+
 name: Main Workflow
 jobs:
   sonarcloud:

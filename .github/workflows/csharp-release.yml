@@ -1,7 +1,7 @@
 name: c# release
 
 on:
-  workflow_dispatch: 
+  workflow_dispatch:
 
 permissions:
   contents: write
@@ -34,20 +34,18 @@ jobs:
       - name: Publish
         shell: bash
         env:
-          PROJECT: rollback
+          PROJECTS: Areas Engine Entities Items Modifiers Movement Scheduling Serializers Trading
           REPOSITORY_TOKEN: ${{ github.token }}
         run: |
+          set -o errtrace -o functrace
+          trap 'echo "erred at ${LINENO} ${BASH_COMMAND}"' ERR
+          
           # obtain .github/VERSION
           if [ ! -f .github/VERSION ]; then
             echo "1.0.0" > .github/VERSION
           fi
           VERSION=$(cat .github/VERSION)
-
-          # build and release
-          cd "${PROJECT}"
           dotnet pack . --configuration Release "-p:Version=${VERSION}"
-          dotnet nuget push "bin/Release/*.nupkg" --api-key "${REPOSITORY_TOKEN}" --source "github-effortgames"
-          cd ../
 
           # push new version
           git config --global user.email "automation@effortgames.nl"
@@ -61,3 +59,13 @@ jobs:
           git commit -m "release ${VERSION}"
           git tag "${VERSION}"
           git push origin master --tags
+
+          RELEASE_CSPROJ_FILES=$(ls */*.csproj | grep -v .Tests | grep -v ^Test)
+          RELEASE_PROJECTS=$(echo "${RELEASE_CSPROJ_FILES}" | xargs -n1 dirname)
+
+          for i in ${RELEASE_PROJECTS}; do
+            echo "Publishing ${i}..."
+            cd $i
+            dotnet nuget push "bin/Release/*.nupkg" --api-key "${REPOSITORY_TOKEN}" --source "github-effortgames"
+            cd ../
+          done

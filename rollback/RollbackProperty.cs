@@ -57,8 +57,7 @@ namespace Rollback
 
         public override int GetHashCode()
         {
-            // ReSharper disable once NonReadonlyMemberInGetHashCode
-            return EqualityComparer<T>.Default.GetHashCode(_value);
+            return 0;
         }
 
         public override string ToString()

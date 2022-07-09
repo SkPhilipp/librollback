@@ -24,12 +24,13 @@ jobs:
       - name: Build
         env:
           TOKEN: ${{ secrets.GH_TOKEN_SCOPE_PACKAGES }}
+          PROJECT_ID: EffortGames_${{ github.event.repository.name }}
         run: |
           dotnet tool install --global dotnet-sonarscanner --version 5.7.1
           dotnet tool install --global dotnet-coverage --version 17.3.6
           dotnet sonarscanner begin /o:"effortgames" \
-                                    /k:"EffortGames_${{ github.event.repository.name }}" \
-                                    /d:sonar.login="${{ secrets.SONAR_TOKEN }}" \
+                                    /k:"${PROJECT_ID}" \
+                                    /d:sonar.login="${TOKEN}" \
                                     /d:sonar.host.url="https://sonarcloud.io" \
                                     /d:sonar.cs.vscoveragexml.reportsPaths=coverage.xml
           dotnet nuget add source --username USERNAME --password "${TOKEN}" --store-password-in-clear-text --name github-effortgames "https://nuget.pkg.github.com/EffortGames/index.json"

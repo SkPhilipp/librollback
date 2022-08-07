@@ -26,6 +26,10 @@ jobs:
         uses: actions/setup-dotnet@v1
         with:
           dotnet-version: '5.0.x'
+      - name: Setup dotnet
+        uses: actions/setup-dotnet@v1
+        with:
+          dotnet-version: '6.0.x'
       - name: Build
         env:
           TOKEN_PACKAGES:  ${{ secrets.GH_TOKEN_SCOPE_PACKAGES }}

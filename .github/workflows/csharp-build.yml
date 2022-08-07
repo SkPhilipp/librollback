@@ -8,10 +8,15 @@ on:
       types: [opened, synchronize, reopened]
   workflow_dispatch:
 
+defaults:
+  run:
+    shell: bash --login {0}
+
 jobs:
   build:
     runs-on: ubuntu-latest
     steps:
+      - uses: EffortGames/action-setup-bash@v1
       - uses: actions/checkout@v2
       - name: Setup dotnet
         uses: actions/setup-dotnet@v1

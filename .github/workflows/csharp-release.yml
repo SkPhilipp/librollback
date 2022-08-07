@@ -3,6 +3,10 @@ name: Release
 on:
   workflow_dispatch:
 
+defaults:
+  run:
+    shell: bash --login {0}
+
 permissions:
   contents: write
   packages: write
@@ -11,6 +15,7 @@ jobs:
   build:
     runs-on: ubuntu-latest
     steps:
+      - uses: EffortGames/action-setup-bash@v1
       - uses: actions/checkout@v2
         with:
           token: ${{ github.token }}
